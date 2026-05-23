@@ -10,6 +10,7 @@ class TournamentView {
         // --- Cache DOM Elements ---
         this.themeToggleBtn = document.getElementById('theme-toggle');
         this.resetAppBtn = document.getElementById('reset-app-btn');
+        this.toastContainer = document.getElementById('toast-container');
         
         // Headers & Selectors
         this.activeTournamentMenuBtn = document.getElementById('active-tournament-menu-btn');
@@ -684,6 +685,33 @@ class TournamentView {
     hideDeleteTourModal() {
         this.deleteTourModal.classList.add('hidden');
         this.deleteTargetTourId = null;
+    }
+
+    showToast(message, type = 'info') {
+        if (!this.toastContainer) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        let iconClass = 'fa-circle-info';
+        if (type === 'success') iconClass = 'fa-circle-check';
+        else if (type === 'warning') iconClass = 'fa-triangle-exclamation';
+        else if (type === 'error') iconClass = 'fa-circle-xmark';
+
+        toast.innerHTML = `
+            <i class="fa-solid ${iconClass}"></i>
+            <span>${this._escapeHTML(message)}</span>
+        `;
+
+        this.toastContainer.appendChild(toast);
+
+        // Slide out after 3 seconds
+        setTimeout(() => {
+            toast.classList.add('slide-out');
+            toast.addEventListener('animationend', () => {
+                toast.remove();
+            });
+        }, 3000);
     }
 
     // --- Helpers ---

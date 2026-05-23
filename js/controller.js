@@ -144,7 +144,7 @@ class TournamentController {
             // Switch directly to Players panel to register rosters
             this.view.navigateToPanel('players-panel');
         } catch (error) {
-            alert("Error: " + error.message);
+            this.view.showToast("Error: " + error.message, 'error');
         }
     }
 
@@ -191,7 +191,7 @@ class TournamentController {
             this.view.setTournamentActiveUI(true, active);
             this.refreshDropdownUI();
         } catch (error) {
-            alert(error.message);
+            this.view.showToast(error.message, 'error');
         }
     }
 
@@ -218,8 +218,9 @@ class TournamentController {
             this.view.playerRatingInput.value = '';
             this.refreshRosterUI();
             this.view.updateDashboardStats(this.model.getActiveTournament());
+            this.view.showToast(`${name} registered successfully!`, 'success');
         } catch (error) {
-            alert(error.message);
+            this.view.showToast(error.message, 'warning');
         }
     }
 
@@ -299,7 +300,7 @@ class TournamentController {
 
         // Verify current round completeness
         if (!this.model.isRoundCompleted(active.currentRound)) {
-            alert(`Please enter all Board results for Round ${active.currentRound} before generating the next round.`);
+            this.view.showToast(`Please enter all Board results for Round ${active.currentRound} before generating the next round.`, 'warning');
             return;
         }
 
@@ -328,8 +329,9 @@ class TournamentController {
             
             // Slide immediately to pairings tab
             this.view.navigateToPanel('pairings-panel');
+            this.view.showToast(`Round ${nextRound} pairings paired successfully!`, 'success');
         } catch (error) {
-            alert("Error: " + error.message);
+            this.view.showToast("Error: " + error.message, 'error');
         }
     }
 
@@ -344,7 +346,7 @@ class TournamentController {
         
         this.refreshUI();
         
-        alert("The tournament is completed! The final standings are now calculated and frozen.");
+        this.view.showToast("Tournament completed! The final standings are calculated and frozen.", 'success');
         this.view.navigateToPanel('standings-panel');
     }
 
