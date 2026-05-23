@@ -1,45 +1,52 @@
 /**
- * Caissa Chess Tournament Manager - View Component
+ * Caissa Chess Tournament Manager - View Component (Multi-Tournament Edition)
  * 
- * Manages the User Interface, DOM manipulation, event listener registration, and animations.
+ * Interacts with the DOM, manages view state transitions, renders tables and pairings, 
+ * and binds event handlers.
  */
 
 class TournamentView {
     constructor() {
-        // Cache DOM Elements
+        // --- Cache DOM Elements ---
         this.themeToggleBtn = document.getElementById('theme-toggle');
-        this.resetTournamentBtn = document.getElementById('reset-tournament-btn');
+        this.resetAppBtn = document.getElementById('reset-app-btn');
         
-        this.playerCountBadge = document.getElementById('player-count-badge');
+        // Headers & Selectors
+        this.activeTournamentMenuBtn = document.getElementById('active-tournament-menu-btn');
+        this.activeTournamentDisplayName = document.getElementById('active-tournament-display-name');
+        this.tournamentsDropdown = document.getElementById('tournaments-dropdown');
+        this.tournamentsList = document.getElementById('tournaments-list');
+        this.createNewTourBtn = document.getElementById('create-new-tour-btn');
+        this.noTourCreateBtn = document.getElementById('no-tour-create-btn');
         
-        // Registration Section Elements
-        this.registrationSection = document.getElementById('registration-section');
-        this.addPlayerForm = document.getElementById('add-player-form');
-        this.playerNameInput = document.getElementById('player-name-input');
-        this.playerRatingInput = document.getElementById('player-rating-input');
-        this.addDummyPlayersBtn = document.getElementById('add-dummy-players-btn');
-        this.registrationPlayerList = document.getElementById('registration-player-list');
-        this.startTournamentBtn = document.getElementById('start-tournament-btn');
+        // Views containers
+        this.noTournamentView = document.getElementById('no-tournament-view');
+        this.activeTournamentView = document.getElementById('active-tournament-view');
         
-        // Active Tournament Elements
-        this.activePlayersSection = document.getElementById('active-players-section');
-        this.activePlayerList = document.getElementById('active-player-list');
-        this.tournamentStateTitle = document.getElementById('tournament-state-title');
-        this.tournamentStateDesc = document.getElementById('tournament-state-desc');
-        this.statCurrentRound = document.getElementById('stat-current-round');
-        this.statCompletedMatches = document.getElementById('stat-completed-matches');
-        this.statLeaderName = document.getElementById('stat-leader-name');
-        
-        // Tabs
-        this.tabBtns = document.querySelectorAll('.tab-btn');
-        this.tabPanels = document.querySelectorAll('.tab-panel');
-        this.pairingsTabBtn = document.getElementById('pairings-tab-btn');
-        
-        // Standings
+        // Sidebar metadata display
+        this.sidebarTournamentTitle = document.getElementById('sidebar-tournament-title');
+        this.sidebarTourRoundsLimit = document.getElementById('sidebar-tour-rounds-limit');
+        this.statRoundDisplay = document.getElementById('stat-round-display');
+        this.statCompletedDisplay = document.getElementById('stat-completed-display');
+        this.statPlayersDisplay = document.getElementById('stat-players-display');
+        this.sidebarTiebreakersList = document.getElementById('sidebar-tiebreakers-list');
+        this.deleteActiveTourBtn = document.getElementById('delete-active-tour-btn');
+
+        // Navigation Tabs (Mobile + Desktop)
+        this.tabBtns = document.querySelectorAll('.tab-btn, .nav-tab-btn');
+        this.appPanels = document.querySelectorAll('.app-panel');
+        this.pairingsTabTrigger = document.getElementById('pairings-tab-trigger');
+        this.desktopPairingsTrigger = document.getElementById('desktop-pairings-trigger');
+        this.playersTabTrigger = document.getElementById('players-tab-trigger');
+        this.desktopPlayersTrigger = document.getElementById('desktop-players-trigger');
+
+        // Panel: Standings
+        this.standingsLegendContainer = document.getElementById('standings-legend-container');
         this.standingsTable = document.getElementById('standings-table');
+        this.standingsTheadTr = document.getElementById('standings-thead-tr');
         this.standingsTbody = document.getElementById('standings-tbody');
-        
-        // Explainer UI
+
+        // Breakdown Explainer Panel
         this.tiebreakerExplainerPanel = document.getElementById('tiebreaker-explainer-panel');
         this.explainerPlayerName = document.getElementById('explainer-player-name');
         this.explainerBhVal = document.getElementById('explainer-bh-val');
@@ -47,139 +54,233 @@ class TournamentView {
         this.explainerBhList = document.getElementById('explainer-bh-list');
         this.explainerSbList = document.getElementById('explainer-sb-list');
         this.closeExplainerBtn = document.getElementById('close-explainer-btn');
-        
-        // Pairings Section
+
+        // Panel: Pairings
         this.currentRoundNumber = document.getElementById('current-round-number');
         this.prevRoundBtn = document.getElementById('prev-round-btn');
         this.nextRoundBtn = document.getElementById('next-round-btn');
         this.generateNextRoundBtn = document.getElementById('generate-next-round-btn');
         this.finishTournamentBtn = document.getElementById('finish-tournament-btn');
         this.pairingsContainer = document.getElementById('pairings-container');
-        
-        // Modals
-        this.resetModal = document.getElementById('reset-modal');
-        this.confirmResetBtn = document.getElementById('confirm-reset-btn');
-        this.modalCloseTriggers = document.querySelectorAll('.modal-close-trigger');
 
-        this.selectedPlayerId = null; // Currently selected player in standings for tie-breaker breakdowns
+        // Panel: Players registration
+        this.addPlayerForm = document.getElementById('add-player-form');
+        this.playerNameInput = document.getElementById('player-name-input');
+        this.playerRatingInput = document.getElementById('player-rating-input');
+        this.loadDummyPlayersBtn = document.getElementById('load-dummy-players-btn');
+        this.rosterPlayerList = document.getElementById('roster-player-list');
+        this.playersRosterCount = document.getElementById('players-roster-count');
+        this.startTournamentBtn = document.getElementById('start-tournament-btn');
+        this.playerEntryCard = document.getElementById('player-entry-card');
+
+        // Panel: Settings
+        this.renameTournamentForm = document.getElementById('rename-tournament-form');
+        this.renameTourNameInput = document.getElementById('rename-tour-name-input');
+        this.settingsTourCreated = document.getElementById('settings-tour-created');
+        this.settingsTourRoundsLimit = document.getElementById('settings-tour-rounds-limit');
+        this.settingsTourStatus = document.getElementById('settings-tour-status');
+        this.settingsTiebreakerPriorityList = document.getElementById('settings-tiebreaker-priority-list');
+
+        // Modals
+        this.createTourModal = document.getElementById('create-tour-modal');
+        this.createTournamentForm = document.getElementById('create-tournament-form');
+        this.newTourName = document.getElementById('new-tour-name');
+        this.newTourRounds = document.getElementById('new-tour-rounds');
+        
+        this.resetAppModal = document.getElementById('reset-app-modal');
+        this.confirmResetAppBtn = document.getElementById('confirm-reset-app-btn');
+        
+        this.deleteTourModal = document.getElementById('delete-tour-modal');
+        this.deleteTourNameDisplay = document.getElementById('delete-tour-name-display');
+        this.confirmDeleteTourBtn = document.getElementById('confirm-delete-tour-btn');
+
+        this.modalCloseBtns = document.querySelectorAll('.modal-close-btn');
+
+        // Selected player cache for tie-breaker breakdowns
+        this.selectedPlayerId = null;
+        this.deleteTargetTourId = null; // Staged tournament for deletion
     }
 
-    // --- Tab Switcher ---
+    // --- Tab Orchestrator ---
     initTabs() {
         this.tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                const targetTab = btn.getAttribute('data-tab');
+                const targetPanelId = btn.getAttribute('data-panel');
                 
-                this.tabBtns.forEach(b => b.classList.remove('active'));
-                this.tabPanels.forEach(p => p.classList.remove('active'));
-                
-                btn.classList.add('active');
-                const activePanel = document.getElementById(targetTab);
-                if (activePanel) activePanel.classList.add('active');
+                // Sync active classes across all buttons targeting the same panel (desktop + mobile)
+                this.tabBtns.forEach(b => {
+                    if (b.getAttribute('data-panel') === targetPanelId) {
+                        b.classList.add('active');
+                    } else {
+                        b.classList.remove('active');
+                    }
+                });
+
+                // Display target panel
+                this.appPanels.forEach(panel => {
+                    if (panel.id === targetPanelId) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
             });
         });
     }
 
-    // --- UI State Toggles ---
-    setTournamentStartedUI(isStarted) {
-        if (isStarted) {
-            this.registrationSection.classList.add('hidden');
-            this.activePlayersSection.classList.remove('hidden');
-            this.pairingsTabBtn.removeAttribute('disabled');
-            this.tournamentStateTitle.textContent = "Tournament Active";
-            this.tournamentStateDesc.textContent = "Standings and pairings update dynamically.";
+    navigateToPanel(panelId) {
+        const matchingBtn = Array.from(this.tabBtns).find(btn => btn.getAttribute('data-panel') === panelId);
+        if (matchingBtn) matchingBtn.click();
+    }
+
+    // --- Dynamic DOM Generators ---
+    
+    /**
+     * Shows/hides elements based on active tournament selection
+     */
+    setTournamentActiveUI(hasActive, activeTour = null) {
+        if (!hasActive) {
+            this.noTournamentView.classList.remove('hidden');
+            this.activeTournamentView.classList.add('hidden');
+            this.activeTournamentDisplayName.textContent = "Select Tournament";
         } else {
-            this.registrationSection.classList.remove('hidden');
-            this.activePlayersSection.classList.add('hidden');
-            this.pairingsTabBtn.setAttribute('disabled', 'true');
-            this.tournamentStateTitle.textContent = "Tournament Setup";
-            this.tournamentStateDesc.textContent = "Register players and launch the Swiss system tournament.";
-            this.tiebreakerExplainerPanel.classList.add('hidden');
+            this.noTournamentView.classList.add('hidden');
+            this.activeTournamentView.classList.remove('hidden');
+            this.activeTournamentDisplayName.textContent = activeTour.name;
             
-            // Switch back to standings tab
-            const firstTab = this.tabBtns[0];
-            firstTab.click();
+            // Sync settings panel inputs
+            this.renameTourNameInput.value = activeTour.name;
+            this.sidebarTournamentTitle.textContent = activeTour.name;
+            this.sidebarTourRoundsLimit.textContent = activeTour.maxRounds ? activeTour.maxRounds : 'Auto';
+            
+            // Adjust form input states based on round status
+            if (activeTour.isStarted) {
+                this.playerEntryCard.classList.add('hidden');
+                this.startTournamentBtn.classList.add('hidden');
+                
+                this.pairingsTabTrigger.removeAttribute('disabled');
+                this.desktopPairingsTrigger.removeAttribute('disabled');
+            } else {
+                this.playerEntryCard.classList.remove('hidden');
+                this.startTournamentBtn.classList.remove('hidden');
+                this.startTournamentBtn.disabled = activeTour.players.length < 2;
+                
+                this.pairingsTabTrigger.setAttribute('disabled', 'true');
+                this.desktopPairingsTrigger.setAttribute('disabled', 'true');
+            }
         }
     }
 
-    // --- Dynamic Rendering ---
-    
     /**
-     * Renders players list in the pre-start registration side panel
+     * Renders Lichess-style active list of tournaments inside the header dropdown menu
      */
-    renderRegistrationPlayerList(players, onDeleteClick) {
-        this.registrationPlayerList.innerHTML = '';
-        this.playerCountBadge.textContent = `${players.length} Players`;
-        this.startTournamentBtn.disabled = players.length < 2;
-
-        if (players.length === 0) {
-            this.registrationPlayerList.innerHTML = `
-                <li class="empty-state">
-                    <i class="fa-solid fa-users empty-icon"></i>
-                    No players registered.
-                </li>`;
+    renderTournamentsDropdown(tournaments, activeId, onSelect, onDelete) {
+        this.tournamentsList.innerHTML = '';
+        
+        if (tournaments.length === 0) {
+            this.tournamentsList.innerHTML = '<li class="text-muted text-center" style="padding:1rem;">No tournaments.</li>';
             return;
         }
 
-        players.forEach(player => {
+        tournaments.forEach(tour => {
             const li = document.createElement('li');
+            li.className = tour.id === activeId ? 'active' : '';
+            
+            const dateStr = new Date(tour.createdAt).toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric'
+            });
+
             li.innerHTML = `
-                <div class="player-info">
-                    <span class="player-name-label">${this._escapeHTML(player.name)}</span>
-                    <span class="player-rating-label"><i class="fa-solid fa-chess-board"></i> Elo: ${player.rating}</span>
+                <div class="tour-item-info">
+                    <span class="tour-item-name bold">${this._escapeHTML(tour.name)}</span>
+                    <span class="tour-item-meta">${tour.players.length} players • ${dateStr}</span>
                 </div>
-                <button class="delete-player-btn" data-id="${player.id}" aria-label="Delete Player">
+                <button class="delete-tour-dropdown-btn" data-id="${tour.id}" aria-label="Delete Tournament">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             `;
 
-            li.querySelector('.delete-player-btn').addEventListener('click', (e) => {
-                const id = e.currentTarget.getAttribute('data-id');
-                onDeleteClick(id);
+            // Row click (select tournament)
+            li.addEventListener('click', (e) => {
+                // Prevent trigger when clicking trashcan button
+                if (e.target.closest('.delete-tour-dropdown-btn')) return;
+                onSelect(tour.id);
+                this.tournamentsDropdown.classList.add('hidden');
             });
 
-            this.registrationPlayerList.appendChild(li);
+            // Trashcan click (delete tournament)
+            li.querySelector('.delete-tour-dropdown-btn').addEventListener('click', (e) => {
+                const id = e.currentTarget.getAttribute('data-id');
+                onDelete(id);
+            });
+
+            this.tournamentsList.appendChild(li);
         });
     }
 
     /**
-     * Renders the running sidebar list of players sorted by score
+     * Dynamically builds the standings table columns and values based on the active tie-breakers.
      */
-    renderActivePlayerList(players) {
-        this.activePlayerList.innerHTML = '';
-        if (players.length === 0) return;
-
-        players.forEach((player, index) => {
-            const li = document.createElement('li');
-            li.className = 'active-player-item';
-            li.innerHTML = `
-                <span class="active-player-rank">#${index + 1}</span>
-                <span class="active-player-name">${this._escapeHTML(player.name)}</span>
-                <span class="active-player-score">${player.points.toFixed(1)} <span class="player-points-tag">pts</span></span>
-            `;
-            this.activePlayerList.appendChild(li);
-        });
-    }
-
-    /**
-     * Renders Standings Table incorporating precise tie-breaker details
-     */
-    renderStandings(players, onRowClick) {
+    renderStandings(activeTour, onRowClick) {
         this.standingsTbody.innerHTML = '';
 
+        if (!activeTour) return;
+
+        const players = activeTour.players;
+        const enabledTBs = activeTour.settings.tiebreakers || [];
+
+        // 1. Dynamic Table Headers Render
+        let theadHTML = `
+            <th class="col-rank">Rank</th>
+            <th class="col-name">Player Name</th>
+            <th class="col-rating">Rating</th>
+            <th class="col-val text-center text-accent">PTS</th>
+        `;
+
+        if (enabledTBs.includes('buchholz')) {
+            theadHTML += `<th class="col-val text-center legend-color-bh" title="Buchholz: Opponents points">BH</th>`;
+        }
+        if (enabledTBs.includes('sonnebornBerger')) {
+            theadHTML += `<th class="col-val text-center legend-color-sb" title="Sonneborn-Berger Score">SB</th>`;
+        }
+        if (enabledTBs.includes('directEncounter')) {
+            theadHTML += `<th class="col-val text-center legend-color-de" title="Direct Encounter">DE</th>`;
+        }
+        if (enabledTBs.includes('wins')) {
+            theadHTML += `<th class="col-val text-center legend-color-wins" title="Wins Count">W</th>`;
+        }
+
+        this.standingsTheadTr.innerHTML = theadHTML;
+
+        // 2. Dynamic Legend Render
+        let legendHTML = `<span class="legend-item"><strong class="legend-color-pts">PTS</strong> Points</span>`;
+        if (enabledTBs.includes('buchholz')) {
+            legendHTML += `<span class="legend-item"><strong class="legend-color-bh">BH</strong> Buchholz</span>`;
+        }
+        if (enabledTBs.includes('sonnebornBerger')) {
+            legendHTML += `<span class="legend-item"><strong class="legend-color-sb">SB</strong> SB</span>`;
+        }
+        if (enabledTBs.includes('directEncounter')) {
+            legendHTML += `<span class="legend-item"><strong class="legend-color-de">DE</strong> Direct</span>`;
+        }
+        if (enabledTBs.includes('wins')) {
+            legendHTML += `<span class="legend-item"><strong class="legend-color-wins">W</strong> Wins</span>`;
+        }
+        this.standingsLegendContainer.innerHTML = legendHTML;
+
+        // 3. Render Table Rows
         if (players.length === 0) {
+            const colspanVal = 4 + enabledTBs.length;
             this.standingsTbody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="empty-state">
+                    <td colspan="${colspanVal}" class="empty-state">
                         <i class="fa-solid fa-chess empty-icon"></i>
-                        <p>Register players and start the tournament to generate standings.</p>
+                        <p>Roster is empty. Add players under the Roster tab to begin.</p>
                     </td>
                 </tr>`;
             return;
         }
-
-        // Leader stat card update
-        this.statLeaderName.textContent = players[0].name;
 
         players.forEach((player, index) => {
             const rank = index + 1;
@@ -190,30 +291,41 @@ class TournamentView {
                 tr.classList.add('selected');
             }
 
-            // Style top ranks
             let rankClass = '';
             if (rank === 1) rankClass = 'row-rank-1';
             else if (rank === 2) rankClass = 'row-rank-2';
             else if (rank === 3) rankClass = 'row-rank-3';
 
-            tr.innerHTML = `
+            let rowHTML = `
                 <td class="col-rank ${rankClass}">
-                    ${rank === 1 ? '<i class="fa-solid fa-trophy"></i>' : ''} 
-                    ${rank === 2 ? '<i class="fa-solid fa-medal"></i>' : ''} 
-                    ${rank === 3 ? '<i class="fa-solid fa-medal"></i>' : ''} 
+                    ${rank === 1 ? '<i class="fa-solid fa-crown" style="color:#eab308;"></i>' : ''}
+                    ${rank === 2 ? '<i class="fa-solid fa-medal" style="color:#94a3b8;"></i>' : ''}
+                    ${rank === 3 ? '<i class="fa-solid fa-medal" style="color:#b45309;"></i>' : ''}
                     ${rank > 3 ? rank : ''}
                 </td>
                 <td class="col-name">${this._escapeHTML(player.name)}</td>
                 <td class="col-rating">${player.rating}</td>
                 <td class="col-val text-center text-accent">${player.points.toFixed(1)}</td>
-                <td class="col-val text-center legend-color-bh">${player.buchholz.toFixed(1)}</td>
-                <td class="col-val text-center legend-color-sb">${player.sonnebornBerger.toFixed(2)}</td>
-                <td class="col-val text-center legend-color-de">${this._getDirectEncounterSymbol(player)}</td>
-                <td class="col-val text-center legend-color-wins">${player.wins}</td>
             `;
 
+            // Append enabled tiebreaker cell values dynamically
+            if (enabledTBs.includes('buchholz')) {
+                rowHTML += `<td class="col-val text-center legend-color-bh">${player.buchholz.toFixed(1)}</td>`;
+            }
+            if (enabledTBs.includes('sonnebornBerger')) {
+                rowHTML += `<td class="col-val text-center legend-color-sb">${player.sonnebornBerger.toFixed(2)}</td>`;
+            }
+            if (enabledTBs.includes('directEncounter')) {
+                rowHTML += `<td class="col-val text-center legend-color-de"><i class="fa-solid fa-code-compare"></i></td>`;
+            }
+            if (enabledTBs.includes('wins')) {
+                rowHTML += `<td class="col-val text-center legend-color-wins">${player.wins}</td>`;
+            }
+
+            tr.innerHTML = rowHTML;
+
+            // Clicking row reveals tiebreaker break-down details
             tr.addEventListener('click', () => {
-                // Highlight row
                 document.querySelectorAll('#standings-tbody tr').forEach(row => row.classList.remove('selected'));
                 tr.classList.add('selected');
                 
@@ -224,20 +336,12 @@ class TournamentView {
             this.standingsTbody.appendChild(tr);
         });
 
-        // Keep explainer widget updated if open
+        // Retain active breakdown open if refreshed
         if (this.selectedPlayerId) {
             onRowClick(this.selectedPlayerId);
         }
     }
 
-    _getDirectEncounterSymbol(player) {
-        // Return check if the player has any Direct Encounter history points
-        return '<i class="fa-solid fa-code-compare"></i>';
-    }
-
-    /**
-     * Renders the interactive Tie-Breaker Breakdown widget
-     */
     renderTiebreakerExplainer(breakdown) {
         if (!breakdown) {
             this.tiebreakerExplainerPanel.classList.add('hidden');
@@ -249,31 +353,29 @@ class TournamentView {
         this.explainerBhVal.textContent = breakdown.buchholz.toFixed(1);
         this.explainerSbVal.textContent = breakdown.sonnebornBerger.toFixed(2);
 
-        // Render Buchholz lists
         this.explainerBhList.innerHTML = '';
         if (breakdown.bhList.length === 0) {
-            this.explainerBhList.innerHTML = '<li class="text-muted">No rounds played yet</li>';
+            this.explainerBhList.innerHTML = '<li class="text-muted text-center" style="padding:0.5rem 0;">No history</li>';
         } else {
             breakdown.bhList.forEach(item => {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span>${this._escapeHTML(item.opponentName)}</span>
-                    <span>+${item.contribution.toFixed(1)} pts</span>
+                    <span>+${item.contribution.toFixed(1)}</span>
                 `;
                 this.explainerBhList.appendChild(li);
             });
         }
 
-        // Render SB lists
         this.explainerSbList.innerHTML = '';
         if (breakdown.sbList.length === 0) {
-            this.explainerSbList.innerHTML = '<li class="text-muted">No rounds played yet</li>';
+            this.explainerSbList.innerHTML = '<li class="text-muted text-center" style="padding:0.5rem 0;">No history</li>';
         } else {
             breakdown.sbList.forEach(item => {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span>${this._escapeHTML(item.opponentName)} (${item.resultText})</span>
-                    <span>+${item.contribution.toFixed(2)} pts</span>
+                    <span>+${item.contribution.toFixed(2)}</span>
                 `;
                 this.explainerSbList.appendChild(li);
             });
@@ -281,16 +383,66 @@ class TournamentView {
     }
 
     /**
-     * Renders pairings and match cards for the selected round
+     * Renders registered roster in Player tab
      */
-    renderPairings(roundMatches, players, onResultChange) {
+    renderRosterList(activeTour, onDeleteClick) {
+        this.rosterPlayerList.innerHTML = '';
+        
+        if (!activeTour) return;
+
+        const players = activeTour.players;
+        this.playersRosterCount.textContent = `${players.length} Players`;
+        this.startTournamentBtn.disabled = players.length < 2;
+
+        if (players.length === 0) {
+            this.rosterPlayerList.innerHTML = `
+                <li class="empty-state">
+                    <i class="fa-solid fa-users empty-icon"></i>
+                    No players registered. Add grandmasters to start.
+                </li>`;
+            return;
+        }
+
+        players.forEach(p => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="player-info">
+                    <span class="player-name-label">${this._escapeHTML(p.name)}</span>
+                    <span class="player-rating-label"><i class="fa-solid fa-chess-board"></i> Rating: ${p.rating}</span>
+                </div>
+                ${!activeTour.isStarted ? `
+                <button class="delete-player-btn" data-id="${p.id}" aria-label="Delete player">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>` : ''}
+            `;
+
+            if (!activeTour.isStarted) {
+                li.querySelector('.delete-player-btn').addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    onDeleteClick(id);
+                });
+            }
+
+            this.rosterPlayerList.appendChild(li);
+        });
+    }
+
+    /**
+     * Renders active Swiss pairings board cards
+     */
+    renderPairings(activeTour, displayedRound, onResultChange) {
         this.pairingsContainer.innerHTML = '';
+        
+        if (!activeTour) return;
+
+        const roundMatches = activeTour.matches.filter(m => m.round === displayedRound);
+        const players = activeTour.players;
 
         if (roundMatches.length === 0) {
             this.pairingsContainer.innerHTML = `
-                <div class="empty-state btn-full">
+                <div class="empty-state" style="padding:3rem 1rem;">
                     <i class="fa-solid fa-chess-board empty-icon"></i>
-                    No matches scheduled for this round.
+                    <p>No pairings generated for Round ${displayedRound}.</p>
                 </div>`;
             return;
         }
@@ -301,29 +453,26 @@ class TournamentView {
             
             const p1 = players.find(p => p.id === match.player1Id);
             
-            let p2 = null;
             let p2Name = 'BYE';
-            let p2Rating = '-';
             let p2Points = 0;
+            const p2 = match.isBye() ? null : players.find(p => p.id === match.player2Id);
 
-            if (!match.isBye()) {
-                p2 = players.find(p => p.id === match.player2Id);
+            if (p2) {
                 p2Name = p2.name;
-                p2Rating = p2.rating;
                 p2Points = p2.points;
             }
 
-            // Check match states
-            let statusBadge = '';
+            // Style headers
+            let statusHTML = '';
             if (match.isBye()) {
-                statusBadge = '<span class="match-status-badge bye">BYE</span>';
+                statusHTML = '<span class="match-status-badge bye">BYE</span>';
             } else if (match.isPlayed()) {
-                statusBadge = '<span class="match-status-badge completed">COMPLETED</span>';
+                statusHTML = '<span class="match-status-badge completed">COMPLETED</span>';
             } else {
-                statusBadge = '<span class="match-status-badge unplayed">UNPLAYED</span>';
+                statusHTML = '<span class="match-status-badge unplayed">UNPLAYED</span>';
             }
 
-            // Check row winner styling classes
+            // Row active scores class
             let p1RowClass = '';
             let p2RowClass = '';
             let score1 = '-';
@@ -355,7 +504,7 @@ class TournamentView {
             card.innerHTML = `
                 <div class="match-header">
                     <span>Board ${index + 1}</span>
-                    ${statusBadge}
+                    ${statusHTML}
                 </div>
                 
                 <div class="match-players">
@@ -372,34 +521,32 @@ class TournamentView {
                     <div class="match-player-row ${p2RowClass}">
                         <div class="player-side">
                             <span class="color-indicator black" title="Black">${match.isBye() ? 'BYE' : 'B'}</span>
-                            <span class="player-name">${this._escapeHTML(p2Name)} ${!match.isBye() ? `<span class="player-points-tag">(${p2Points.toFixed(1)} pts)</span>` : ''}</span>
+                            <span class="player-name">${this._escapeHTML(p2Name)} ${p2 ? `<span class="player-points-tag">(${p2Points.toFixed(1)} pts)</span>` : ''}</span>
                         </div>
                         <div class="match-score">${score2}</div>
                     </div>
                 </div>
                 
-                <!-- Result Selector Form (Hidden if Bye match) -->
+                <!-- Results Actions Selector -->
                 <div class="results-selector-container ${match.isBye() ? 'hidden' : ''}">
                     <div class="results-selector" data-match-id="${match.id}">
-                        <button class="btn-result btn-r-win1 ${match.result === '1-0' ? 'active-win1' : ''}" data-result="1-0">
+                        <button class="btn-result btn-win-white ${match.result === '1-0' ? 'active-win1' : ''}" data-result="1-0">
                             White Wins
                         </button>
-                        <button class="btn-result btn-r-draw ${match.result === '0.5-0.5' ? 'active-draw' : ''}" data-result="0.5-0.5">
+                        <button class="btn-result btn-draw ${match.result === '0.5-0.5' ? 'active-draw' : ''}" data-result="0.5-0.5">
                             Draw
                         </button>
-                        <button class="btn-result btn-r-win2 ${match.result === '0-1' ? 'active-win2' : ''}" data-result="0-1">
+                        <button class="btn-result btn-win-black ${match.result === '0-1' ? 'active-win2' : ''}" data-result="0-1">
                             Black Wins
                         </button>
                     </div>
                 </div>
             `;
 
-            // Bind click events to results selectors
             if (!match.isBye()) {
                 card.querySelectorAll('.btn-result').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const targetResult = e.currentTarget.getAttribute('data-result');
-                        // Trigger controller update
                         onResultChange(match.id, targetResult);
                     });
                 });
@@ -410,28 +557,133 @@ class TournamentView {
     }
 
     /**
-     * Renders top dashboard stats (Round indices, completed counts)
+     * Renders settings descriptions and tiebreaker active arrays
      */
-    updateDashboardStats(currentRound, matches) {
-        this.statCurrentRound.textContent = currentRound > 0 ? currentRound : '-';
+    renderSettingsPanel(activeTour) {
+        if (!activeTour) return;
+
+        this.settingsTourCreated.textContent = new Date(activeTour.createdAt).toLocaleString();
+        this.settingsTourRoundsLimit.textContent = activeTour.maxRounds ? `${activeTour.maxRounds} rounds` : 'No limit (Auto)';
         
-        if (currentRound === 0 || matches.length === 0) {
-            this.statCompletedMatches.textContent = '-';
+        let statusText = 'Setup Phase';
+        let statusClass = 'badge';
+        if (activeTour.isFinished) {
+            statusText = 'Completed';
+            statusClass = 'badge btn-success';
+        } else if (activeTour.isStarted) {
+            statusText = 'Active In-Progress';
+            statusClass = 'badge btn-accent';
+        }
+        
+        this.settingsTourStatus.textContent = statusText;
+        this.settingsTourStatus.className = statusClass;
+
+        // Render settings active tiebreaker priorities
+        this.settingsTiebreakerPriorityList.innerHTML = '';
+        this.sidebarTiebreakersList.innerHTML = '';
+
+        const enabledTBs = activeTour.settings.tiebreakers || [];
+
+        // Points is always primary
+        const ptsLi = document.createElement('li');
+        ptsLi.innerHTML = `<strong>Total Points</strong> <span class="text-muted">(Primary, standard win/draw scores)</span>`;
+        this.settingsTiebreakerPriorityList.appendChild(ptsLi);
+
+        const sidePtsLi = document.createElement('li');
+        sidePtsLi.innerHTML = `Points`;
+        this.sidebarTiebreakersList.appendChild(sidePtsLi);
+
+        // Optional list
+        enabledTBs.forEach(tb => {
+            const li = document.createElement('li');
+            const sideLi = document.createElement('li');
+            
+            let labelText = '';
+            let descText = '';
+
+            if (tb === 'buchholz') {
+                labelText = 'Buchholz Score';
+                descText = 'Sum of all played opponents\' points';
+            } else if (tb === 'sonnebornBerger') {
+                labelText = 'Sonneborn-Berger Score';
+                descText = 'Sum of opponent points &times; match outcome';
+            } else if (tb === 'directEncounter') {
+                labelText = 'Direct Encounter';
+                descText = 'Head-to-head match winner ranks higher';
+            } else if (tb === 'wins') {
+                labelText = 'Wins Count';
+                descText = 'Highest raw win count';
+            }
+
+            li.innerHTML = `<strong>${labelText}</strong> <span class="text-muted">(${descText})</span>`;
+            this.settingsTiebreakerPriorityList.appendChild(li);
+
+            sideLi.textContent = labelText;
+            this.sidebarTiebreakersList.appendChild(sideLi);
+        });
+
+        // Fallback seed
+        const fallbackLi = document.createElement('li');
+        fallbackLi.innerHTML = `<strong>Stable Seed</strong> <span class="text-muted">(Deterministic fallback, ensures zero random shifts)</span>`;
+        this.settingsTiebreakerPriorityList.appendChild(fallbackLi);
+
+        const sideFallbackLi = document.createElement('li');
+        sideFallbackLi.textContent = 'Stable Hash Seed';
+        this.sidebarTiebreakersList.appendChild(sideFallbackLi);
+    }
+
+    /**
+     * Updates top summary counts in side headers
+     */
+    updateDashboardStats(activeTour) {
+        if (!activeTour) {
+            this.statRoundDisplay.textContent = '-';
+            this.statCompletedDisplay.textContent = '-';
+            this.statPlayersDisplay.textContent = '-';
             return;
         }
 
-        const roundMatches = matches.filter(m => m.round === currentRound);
+        this.statRoundDisplay.textContent = activeTour.currentRound > 0 ? activeTour.currentRound : '-';
+        this.statPlayersDisplay.textContent = activeTour.players.length;
+
+        if (activeTour.currentRound === 0) {
+            this.statCompletedDisplay.textContent = '-';
+            return;
+        }
+
+        const roundMatches = activeTour.matches.filter(m => m.round === activeTour.currentRound);
         const completed = roundMatches.filter(m => m.isPlayed()).length;
-        this.statCompletedMatches.textContent = `${completed}/${roundMatches.length}`;
+        this.statCompletedDisplay.textContent = `${completed}/${roundMatches.length}`;
     }
 
-    // --- Modal Controls ---
-    showResetModal() {
-        this.resetModal.classList.remove('hidden');
+    // --- Modal togglers ---
+    showCreateTourModal() {
+        this.createTourModal.classList.remove('hidden');
+        this.newTourName.focus();
     }
 
-    hideResetModal() {
-        this.resetModal.classList.add('hidden');
+    hideCreateTourModal() {
+        this.createTourModal.classList.add('hidden');
+        this.createTournamentForm.reset();
+    }
+
+    showResetAppModal() {
+        this.resetAppModal.classList.remove('hidden');
+    }
+
+    hideResetAppModal() {
+        this.resetAppModal.classList.add('hidden');
+    }
+
+    showDeleteTourModal(name, id) {
+        this.deleteTargetTourId = id;
+        this.deleteTourNameDisplay.textContent = name;
+        this.deleteTourModal.classList.remove('hidden');
+    }
+
+    hideDeleteTourModal() {
+        this.deleteTourModal.classList.add('hidden');
+        this.deleteTargetTourId = null;
     }
 
     // --- Helpers ---

@@ -2,8 +2,8 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caissa | Modern Chess Swiss Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Caissa | Mobile Chess Swiss Manager</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,176 +14,196 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- App Container -->
+    <!-- App Main Container -->
     <div class="app-container">
+        
         <!-- Header -->
         <header class="app-header">
-            <div class="logo">
+            <div class="header-brand">
                 <i class="fa-solid fa-chess-knight logo-icon"></i>
-                <span class="logo-text">Caissa</span>
-                <span class="logo-sub">Swiss Manager</span>
+                <div class="brand-text">
+                    <span class="logo-text">Caissa</span>
+                    <span class="logo-sub">Swiss System</span>
+                </div>
             </div>
             
+            <!-- Tournament Selector Menu (Lichess Style) -->
+            <div class="tournament-selector-container">
+                <button id="active-tournament-menu-btn" class="btn btn-selector">
+                    <span id="active-tournament-display-name">Select Tournament</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="selector-dropdown hidden" id="tournaments-dropdown">
+                    <div class="dropdown-header">
+                        <span>Your Tournaments</span>
+                        <button id="create-new-tour-btn" class="btn btn-sm btn-accent">
+                            <i class="fa-solid fa-plus"></i> New
+                        </button>
+                    </div>
+                    <ul id="tournaments-list" class="dropdown-list">
+                        <!-- Dynamic list of tournaments -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Global Actions -->
             <div class="header-actions">
                 <button id="theme-toggle" class="btn btn-icon-round" aria-label="Toggle Theme">
                     <i class="fa-solid fa-moon theme-icon-dark"></i>
                     <i class="fa-solid fa-sun theme-icon-light"></i>
                 </button>
-                <button id="reset-tournament-btn" class="btn btn-secondary btn-icon-left">
-                    <i class="fa-solid fa-rotate-right"></i> Reset App
-                </button>
             </div>
         </header>
 
-        <!-- Dashboard Layout -->
-        <div class="dashboard-grid">
-            <!-- Sidebar: Player List & Creation -->
-            <aside class="sidebar-panel">
+        <!-- No Active Tournament Placeholder -->
+        <div id="no-tournament-view" class="empty-state-view hidden">
+            <div class="empty-state-card glass-panel">
+                <i class="fa-solid fa-chess-king big-empty-icon"></i>
+                <h2>No Active Tournaments</h2>
+                <p>Launch a Swiss chess tournament to begin pairing boards and tracking dynamic standings.</p>
+                <button id="no-tour-create-btn" class="btn btn-accent btn-lg mt-4">
+                    <i class="fa-solid fa-plus"></i> Create First Tournament
+                </button>
+            </div>
+        </div>
+
+        <!-- Active Tournament Content Panel -->
+        <div id="active-tournament-view" class="dashboard-grid">
+            
+            <!-- Sidebar: Navigation Panel on Desktop, Hidden/Integrated on Mobile -->
+            <aside class="sidebar-panel" id="desktop-sidebar">
                 <div class="panel-header">
-                    <h2><i class="fa-solid fa-users"></i> Players</h2>
-                    <span class="badge" id="player-count-badge">0 Players</span>
-                </div>
-                
-                <!-- Player Registration State (Active before Tournament starts) -->
-                <div id="registration-section" class="panel-content">
-                    <form id="add-player-form" class="input-group">
-                        <div class="input-wrapper">
-                            <i class="fa-solid fa-user input-icon"></i>
-                            <input type="text" id="player-name-input" placeholder="Player Name" required maxlength="25">
-                        </div>
-                        <div class="input-wrapper input-rating">
-                            <i class="fa-solid fa-chess-board input-icon"></i>
-                            <input type="number" id="player-rating-input" placeholder="Rating (optional)" min="100" max="3500">
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full"><i class="fa-solid fa-plus"></i> Add Player</button>
-                    </form>
-
-                    <div class="quick-setup">
-                        <button id="add-dummy-players-btn" class="btn btn-outline btn-full btn-sm">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> Load 8 Demo Players
-                        </button>
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <div class="player-list-container">
-                        <ul id="registration-player-list" class="styled-list">
-                            <!-- Populated dynamically -->
-                            <li class="empty-state">No players added yet.</li>
-                        </ul>
-                    </div>
-
-                    <div class="panel-footer-actions">
-                        <button id="start-tournament-btn" class="btn btn-accent btn-full btn-lg" disabled>
-                            <i class="fa-solid fa-play"></i> Start Tournament
-                        </button>
-                    </div>
+                    <h2><i class="fa-solid fa-chess"></i> Tournament Admin</h2>
                 </div>
 
-                <!-- Active Tournament Player Standings Summary (Shows during tournament) -->
-                <div id="active-players-section" class="panel-content hidden">
-                    <div class="player-list-container full-height">
-                        <ul id="active-player-list" class="styled-list">
-                            <!-- Populated dynamically with active players -->
-                        </ul>
+                <div class="panel-content">
+                    <!-- Tournament Metadata Banner Card -->
+                    <div class="meta-banner glass-panel">
+                        <h3 id="sidebar-tournament-title">Tournament Name</h3>
+                        <p class="tour-round-limit-lbl">Limit: <span id="sidebar-tour-rounds-limit">Auto</span> rounds</p>
+                        
+                        <div class="meta-stats mt-3">
+                            <div class="meta-stat">
+                                <span class="meta-val" id="stat-round-display">-</span>
+                                <span class="meta-lbl">Round</span>
+                            </div>
+                            <div class="meta-stat">
+                                <span class="meta-val" id="stat-completed-display">0/0</span>
+                                <span class="meta-lbl">Matches</span>
+                            </div>
+                            <div class="meta-stat">
+                                <span class="meta-val" id="stat-players-display">0</span>
+                                <span class="meta-lbl">Players</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Tie-Breaker Settings Summary -->
+                    <div class="glass-panel">
+                        <h4>Active Tie-Breakers</h4>
+                        <ol id="sidebar-tiebreakers-list" class="settings-summary-list">
+                            <!-- Dynamic -->
+                        </ol>
+                    </div>
+
+                    <div class="sidebar-actions mt-auto">
+                        <button id="delete-active-tour-btn" class="btn btn-outline btn-full btn-danger-hover btn-sm">
+                            <i class="fa-solid fa-trash-can"></i> Delete Tournament
+                        </button>
+                        <button id="reset-app-btn" class="btn btn-outline btn-full btn-sm mt-2">
+                            <i class="fa-solid fa-rotate-right"></i> Reset App Data
+                        </button>
                     </div>
                 </div>
             </aside>
 
-            <!-- Main Content Area -->
+            <!-- Main Content Panels -->
             <main class="main-content">
-                <!-- Tournament Dashboard Status -->
-                <section class="dashboard-banner">
-                    <div class="banner-card highlight-card">
-                        <div class="banner-info">
-                            <h1 id="tournament-state-title">Tournament Setup</h1>
-                            <p id="tournament-state-desc">Register players and launch the Swiss system tournament.</p>
-                        </div>
-                        <div class="banner-stats">
-                            <div class="stat-box">
-                                <span class="stat-val" id="stat-current-round">-</span>
-                                <span class="stat-lbl">Current Round</span>
-                            </div>
-                            <div class="stat-box">
-                                <span class="stat-val" id="stat-completed-matches">0/0</span>
-                                <span class="stat-lbl">Matches Played</span>
-                            </div>
-                            <div class="stat-box">
-                                <span class="stat-val" id="stat-leader-name">-</span>
-                                <span class="stat-lbl">Tournament Leader</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Tabs Navigation -->
-                <nav class="tab-navigation">
-                    <button class="tab-btn active" data-tab="standings-tab">
-                        <i class="fa-solid fa-ranking-star"></i> Standings
+                <!-- Mobile Navigation Tabs (Bottom navbar on phones, top tabs on desktop) -->
+                <nav class="mobile-nav-bar" id="mobile-tabs">
+                    <button class="nav-tab-btn active" data-panel="standings-panel">
+                        <i class="fa-solid fa-ranking-star"></i>
+                        <span>Standings</span>
                     </button>
-                    <button class="tab-btn" data-tab="pairings-tab" id="pairings-tab-btn" disabled>
-                        <i class="fa-solid fa-code-fork"></i> Pairings & Results
+                    <button class="nav-tab-btn" data-panel="pairings-panel" id="pairings-tab-trigger">
+                        <i class="fa-solid fa-code-fork"></i>
+                        <span>Pairings</span>
+                    </button>
+                    <button class="nav-tab-btn" data-panel="players-panel" id="players-tab-trigger">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Players</span>
+                    </button>
+                    <button class="nav-tab-btn" data-panel="settings-panel">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Config</span>
                     </button>
                 </nav>
 
-                <!-- Tab Panels -->
-                <div class="tab-panels-container">
-                    <!-- Tab: Standings -->
-                    <div id="standings-tab" class="tab-panel active">
+                <!-- Desktop Tab Navigation -->
+                <nav class="desktop-tabs hidden-mobile">
+                    <button class="tab-btn active" data-panel="standings-panel">
+                        <i class="fa-solid fa-ranking-star"></i> Standings Table
+                    </button>
+                    <button class="tab-btn" data-panel="pairings-panel" id="desktop-pairings-trigger">
+                        <i class="fa-solid fa-code-fork"></i> Pairings & Results
+                    </button>
+                    <button class="tab-btn" data-panel="players-panel" id="desktop-players-trigger">
+                        <i class="fa-solid fa-users"></i> Player Management
+                    </button>
+                    <button class="tab-btn" data-panel="settings-panel">
+                        <i class="fa-solid fa-sliders"></i> Tournament Configuration
+                    </button>
+                </nav>
+
+                <!-- Tab Panels Container -->
+                <div class="panels-container">
+                    
+                    <!-- Panel 1: Standings -->
+                    <div id="standings-panel" class="app-panel active">
                         <div class="glass-panel">
                             <div class="panel-title-bar">
-                                <h3>Standings Table</h3>
-                                <div class="table-legend">
-                                    <span class="legend-item"><strong class="legend-color-points">PTS</strong> Points</span>
-                                    <span class="legend-item" title="Buchholz: Sum of all opponents' total points"><strong class="legend-color-bh">BH</strong> Buchholz</span>
-                                    <span class="legend-item" title="Sonneborn-Berger: Sum of (opponent points x result weight)"><strong class="legend-color-sb">SB</strong> Sonneborn-Berger</span>
-                                    <span class="legend-item" title="Direct Encounter: Head-to-head result"><strong class="legend-color-de">DE</strong> Direct Encounter</span>
-                                    <span class="legend-item" title="Wins: Total number of won matches"><strong class="legend-color-wins">W</strong> Wins</span>
+                                <h3>Standings Dashboard</h3>
+                                <div class="standings-legend" id="standings-legend-container">
+                                    <!-- Populated dynamically based on enabled tiebreakers -->
                                 </div>
                             </div>
+                            
                             <div class="table-responsive">
                                 <table class="standings-table" id="standings-table">
                                     <thead>
-                                        <tr>
-                                            <th class="col-rank">Rank</th>
-                                            <th class="col-name">Player Name</th>
-                                            <th class="col-rating">Rating</th>
-                                            <th class="col-val text-center">PTS</th>
-                                            <th class="col-val text-center">BH</th>
-                                            <th class="col-val text-center">SB</th>
-                                            <th class="col-val text-center">DE</th>
-                                            <th class="col-val text-center">W</th>
+                                        <tr id="standings-thead-tr">
+                                            <!-- Dynamically populated based on tiebreaker settings -->
                                         </tr>
                                     </thead>
                                     <tbody id="standings-tbody">
-                                        <tr>
-                                            <td colspan="8" class="empty-state">
-                                                <i class="fa-solid fa-chess empty-icon"></i>
-                                                <p>Register players and start the tournament to generate standings.</p>
-                                            </td>
-                                        </tr>
+                                        <!-- Dynamic -->
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
-                        <!-- Details Explainer Panel (Wow Factor!) -->
+                        <!-- Explainer Accordion Panel -->
                         <div class="glass-panel mt-4 hidden" id="tiebreaker-explainer-panel">
                             <div class="panel-header">
-                                <h3><i class="fa-solid fa-circle-info"></i> Tie-Breaker Breakdown: <span id="explainer-player-name" class="text-accent">Player</span></h3>
-                                <button class="btn btn-sm btn-icon-round" id="close-explainer-btn"><i class="fa-solid fa-xmark"></i></button>
+                                <h3>
+                                    <i class="fa-solid fa-circle-info"></i> 
+                                    Breakdown: <span id="explainer-player-name" class="text-accent">Player</span>
+                                </h3>
+                                <button class="btn btn-sm btn-icon-round" id="close-explainer-btn">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
                             </div>
                             <div class="explainer-grid">
                                 <div class="explainer-card">
-                                    <h4>Buchholz Score Details (<span id="explainer-bh-val">0.0</span>)</h4>
-                                    <p class="explainer-description">Sum of the scores of all opponents. A higher score means the player faced tougher opponents on average.</p>
+                                    <h4>Buchholz Details (<span id="explainer-bh-val">0.0</span>)</h4>
+                                    <p class="explainer-desc">Sum of opponents' total points from played games.</p>
                                     <ul id="explainer-bh-list" class="opponents-breakdown-list">
                                         <!-- Dynamic -->
                                     </ul>
                                 </div>
                                 <div class="explainer-card">
                                     <h4>Sonneborn-Berger Details (<span id="explainer-sb-val">0.00</span>)</h4>
-                                    <p class="explainer-description">Sum of opponents' scores multiplied by the result (1.0 for win, 0.5 for draw, 0.0 for loss). Rewards wins/draws against stronger opponents.</p>
+                                    <p class="explainer-desc">Sum of opponent scores &times; match outcome weight.</p>
                                     <ul id="explainer-sb-list" class="opponents-breakdown-list">
                                         <!-- Dynamic -->
                                     </ul>
@@ -192,18 +212,18 @@
                         </div>
                     </div>
 
-                    <!-- Tab: Pairings & Results -->
-                    <div id="pairings-tab" class="tab-panel">
-                        <div class="pairings-controls glass-panel">
-                            <div class="round-navigation">
+                    <!-- Panel 2: Pairings -->
+                    <div id="pairings-panel" class="app-panel">
+                        <div class="pairings-header glass-panel mb-3">
+                            <div class="round-navigator">
                                 <button id="prev-round-btn" class="btn btn-secondary btn-icon-only"><i class="fa-solid fa-chevron-left"></i></button>
-                                <span class="round-display">Round <span id="current-round-number">1</span></span>
+                                <span class="round-badge">Round <span id="current-round-number">1</span></span>
                                 <button id="next-round-btn" class="btn btn-secondary btn-icon-only"><i class="fa-solid fa-chevron-right"></i></button>
                             </div>
-                            
-                            <div class="pairings-actions">
+
+                            <div class="round-actions">
                                 <button id="generate-next-round-btn" class="btn btn-accent btn-icon-left">
-                                    <i class="fa-solid fa-chess-board"></i> Generate Next Round
+                                    <i class="fa-solid fa-chess-board"></i> Pair Round
                                 </button>
                                 <button id="finish-tournament-btn" class="btn btn-success btn-icon-left hidden">
                                     <i class="fa-solid fa-trophy"></i> End Tournament
@@ -211,30 +231,212 @@
                             </div>
                         </div>
 
-                        <!-- Pairings List -->
                         <div class="pairings-grid" id="pairings-container">
                             <!-- Populated dynamically with match cards -->
                         </div>
                     </div>
+
+                    <!-- Panel 3: Players -->
+                    <div id="players-panel" class="app-panel">
+                        <div class="players-layout-grid">
+                            <!-- Add Player Form -->
+                            <div class="glass-panel" id="player-entry-card">
+                                <h3>Add New Player</h3>
+                                <p class="section-desc mb-3">Add players to the tournament before starting Round 1.</p>
+                                
+                                <form id="add-player-form" class="input-group">
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-user input-icon"></i>
+                                        <input type="text" id="player-name-input" placeholder="Player Name" required maxlength="25">
+                                    </div>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-chess-board input-icon"></i>
+                                        <input type="number" id="player-rating-input" placeholder="Rating (defaults to 1200)" min="100" max="3500">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-full mt-2">
+                                        <i class="fa-solid fa-user-plus"></i> Register Player
+                                    </button>
+                                </form>
+
+                                <div class="divider mt-4 mb-4"></div>
+                                
+                                <button id="load-dummy-players-btn" class="btn btn-outline btn-full">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Load 8 Grandmasters
+                                </button>
+                            </div>
+
+                            <!-- Players Registered List -->
+                            <div class="glass-panel">
+                                <div class="panel-header-simple mb-3">
+                                    <h3>Registered Roster</h3>
+                                    <span class="badge" id="players-roster-count">0 Players</span>
+                                </div>
+                                
+                                <div class="player-roster-container">
+                                    <ul id="roster-player-list" class="styled-list">
+                                        <!-- Dynamic -->
+                                    </ul>
+                                </div>
+
+                                <div class="roster-start-trigger mt-4">
+                                    <button id="start-tournament-btn" class="btn btn-accent btn-full btn-lg" disabled>
+                                        <i class="fa-solid fa-play"></i> Start Swiss System
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 4: Settings -->
+                    <div id="settings-panel" class="app-panel">
+                        <div class="settings-grid">
+                            
+                            <!-- Tournament Info Form -->
+                            <div class="glass-panel">
+                                <h3>Tournament Settings</h3>
+                                <p class="section-desc mb-3">Rename the tournament or view its attributes.</p>
+                                
+                                <form id="rename-tournament-form" class="input-group">
+                                    <label class="form-label">Tournament Name</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-pen-to-square input-icon"></i>
+                                        <input type="text" id="rename-tour-name-input" required maxlength="30">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-2">Update Name</button>
+                                </form>
+
+                                <div class="divider mt-4"></div>
+
+                                <div class="settings-read-only">
+                                    <div class="settings-row">
+                                        <span class="lbl">Created On</span>
+                                        <span class="val" id="settings-tour-created">-</span>
+                                    </div>
+                                    <div class="settings-row">
+                                        <span class="lbl">Rounds Limit</span>
+                                        <span class="val" id="settings-tour-rounds-limit">-</span>
+                                    </div>
+                                    <div class="settings-row">
+                                        <span class="lbl">Status</span>
+                                        <span class="val badge" id="settings-tour-status">Setup</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tie-Breaker Active List Details -->
+                            <div class="glass-panel">
+                                <h3>Standings Tie-Breaker Priority</h3>
+                                <p class="section-desc">Active ranking factors in order of evaluation:</p>
+                                <ol id="settings-tiebreaker-priority-list" class="styled-priority-list mt-3">
+                                    <!-- Dynamic -->
+                                </ol>
+                                <div class="alert alert-info mt-3">
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                    <span>Points is always computed as the primary ranking factor. Fallback seed breaks final ties.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </main>
         </div>
+
     </div>
 
     <!-- Modals -->
-    <!-- Reset Confirmation Modal -->
-    <div class="modal-overlay hidden" id="reset-modal">
+    <!-- Create Tournament Modal -->
+    <div class="modal-overlay hidden" id="create-tour-modal">
         <div class="modal-card">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-triangle-exclamation"></i> Reset Tournament?</h3>
-                <button class="btn btn-icon-round modal-close-trigger"><i class="fa-solid fa-xmark"></i></button>
+            <form id="create-tournament-form">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-plus"></i> New Swiss Tournament</h3>
+                    <button type="button" class="btn btn-icon-round modal-close-btn" aria-label="Close modal"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="new-tour-name" class="form-label">Tournament Name</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-trophy input-icon"></i>
+                            <input type="text" id="new-tour-name" placeholder="e.g., Spring Open 2026" required maxlength="30">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="new-tour-rounds" class="form-label">Rounds Limit (Optional)</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-repeat input-icon"></i>
+                            <input type="number" id="new-tour-rounds" placeholder="Leave empty for auto rounds" min="1" max="20">
+                        </div>
+                        <span class="help-text">If left empty, rounds are automatically calculated based on player count.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Enable Tie-Breaker Systems</label>
+                        <span class="help-text mb-3">Tied players will be ranked using the checked tiebreakers in order:</span>
+                        
+                        <div class="tiebreaker-checkboxes-list">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="tb-cb-buchholz" checked value="buchholz">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label"><strong>Buchholz Score</strong> (Opponents' points sum)</span>
+                            </label>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="tb-cb-sb" checked value="sonnebornBerger">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label"><strong>Sonneborn-Berger</strong> (Opponents' points &times; outcome)</span>
+                            </label>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="tb-cb-de" checked value="directEncounter">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label"><strong>Direct Encounter</strong> (Head-to-head match)</span>
+                            </label>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="tb-cb-wins" checked value="wins">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label"><strong>Most Wins</strong> (Raw win count)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close-btn">Cancel</button>
+                    <button type="submit" class="btn btn-accent"><i class="fa-solid fa-play"></i> Create & Launch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Reset App Modal -->
+    <div class="modal-overlay hidden" id="reset-app-modal">
+        <div class="modal-card">
+            <div class="modal-header header-danger">
+                <h3><i class="fa-solid fa-triangle-exclamation"></i> Reset Application?</h3>
+                <button type="button" class="btn btn-icon-round modal-close-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to reset? This will erase all players, matches, results, and settings from the local storage. This action cannot be undone.</p>
+                <p>Are you sure you want to reset? This will delete **ALL** tournaments, rosters, matches, scores, and settings from localStorage. This action is permanent and cannot be undone.</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary modal-close-trigger">Cancel</button>
-                <button class="btn btn-danger" id="confirm-reset-btn">Yes, Reset App</button>
+                <button type="button" class="btn btn-secondary modal-close-btn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-reset-app-btn">Yes, Reset App</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Tournament Modal -->
+    <div class="modal-overlay hidden" id="delete-tour-modal">
+        <div class="modal-card">
+            <div class="modal-header header-danger">
+                <h3><i class="fa-solid fa-trash"></i> Delete Tournament?</h3>
+                <button type="button" class="btn btn-icon-round modal-close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the tournament "<span id="delete-tour-name-display" class="bold text-danger">Tournament</span>"? All players, rounds, pairings, and results will be permanently removed.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close-btn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-tour-btn">Yes, Delete</button>
             </div>
         </div>
     </div>
