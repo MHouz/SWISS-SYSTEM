@@ -108,6 +108,7 @@ class TournamentController {
         this.view.prevRoundBtn.addEventListener('click', () => this.handleNavigateRound(-1));
         this.view.nextRoundBtn.addEventListener('click', () => this.handleNavigateRound(1));
         this.view.generateNextRoundBtn.addEventListener('click', () => this.handleGenerateNextRound());
+        this.view.finishTournamentBtn.addEventListener('click', () => this.handleFinishTournament());
         
         // Close explainer card
         this.view.closeExplainerBtn.addEventListener('click', () => {
